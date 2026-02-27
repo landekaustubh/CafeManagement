@@ -5,17 +5,23 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.velocity.cafe.dto.request.CafeRequestDto;
+import com.velocity.cafe.dto.response.CafeResponseDto;
 import com.velocity.cafe.entities.Cafe;
 import com.velocity.cafe.services.CafeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -26,38 +32,42 @@ public class CafeController {
 	private final CafeService cafeService;
 	
 	@PostMapping
-	public ResponseEntity<Cafe> createCafe(@RequestBody Cafe cafe){
-		Cafe cafe1 = cafeService.addCafe(cafe);
-		if(cafe1 != null) {
-			return ResponseEntity.status(HttpStatus.CREATED).body(cafe1);
-		}
-		return null;
+	public ResponseEntity<CafeResponseDto> createCafe(@RequestBody @Valid CafeRequestDto cafe){
+		CafeResponseDto cafe1 = cafeService.addCafe(cafe);
+		return ResponseEntity.status(HttpStatus.CREATED).body(cafe1);
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<Cafe>> getAllCafe(Cafe cafe){
-		List<Cafe> list1 = cafeService.getCafeList(cafe);
-		if(list1 != null) {
-			return ResponseEntity.status(HttpStatus.OK).body(list1);
-		}
-		return null;
+	public ResponseEntity<List<CafeResponseDto>> getAllCafe(){
+		List<CafeResponseDto> list1 = cafeService.getCafeList();
+        return ResponseEntity.status(HttpStatus.OK).body(list1);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Cafe> getCafe(@PathVariable Long id){
-		Cafe cafeId = cafeService.getCafeById(id);
-		if(cafeId != null) {
-			return ResponseEntity.status(HttpStatus.OK).body(cafeId);
-		}
-		return null;
+	public ResponseEntity<CafeResponseDto> getCafe(@PathVariable Long id){
+		CafeResponseDto cafeId = cafeService.getCafeById(id);
+		return ResponseEntity.status(HttpStatus.OK).body(cafeId);
 	}
 	
 	@PutMapping("/{cafeId}")
-	public ResponseEntity<Cafe> updateCafe(@RequestBody Cafe cafe, @PathVariable(name = "cafeId") Long id){
-		Cafe updCafe = cafeService.updateCafe(cafe,id);
-	    if(cafe != null) {
-	    	return ResponseEntity.status(HttpStatus.OK).body(updCafe);
-	    }
-	    return null;
+	public ResponseEntity<CafeResponseDto> updateCafe(
+	        @Valid @RequestBody CafeRequestDto cafe,
+	        @PathVariable("cafeId") Long id) {
+
+	    CafeResponseDto updCafe = cafeService.updateCafe(cafe, id);
+
+	    return ResponseEntity.ok(updCafe);
+	}
+	
+	@PatchMapping("/{id}/name")
+	public ResponseEntity<CafeResponseDto> updateCafeName(@PathVariable Long id, @RequestParam String name){
+		CafeResponseDto c1 =	cafeService.updateCafeName(id,name);
+	  return ResponseEntity.status(HttpStatus.OK).body(c1);
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
+		cafeService.deleteCafeById(id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 	}
 }

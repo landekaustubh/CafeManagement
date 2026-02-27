@@ -31,6 +31,7 @@ public class Cafe {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column(nullable = false)
 	private String name;
 	
 	private String location;
@@ -53,6 +54,6 @@ public class Cafe {
 	@Column(name = "is_active")
 	private Boolean isActive;
 	
-	@OneToMany(mappedBy = "cafe")
-	private List<MenuItem> menuItem;
+	@OneToMany(mappedBy = "cafe",orphanRemoval = true)
+	private List<MenuItem> menuItems;
 }
